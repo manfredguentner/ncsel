@@ -1,0 +1,99 @@
+.\" ncsel(1) manual page
+.Dd April 24, 2026
+.Dt NCSEL 1
+.Os
+.Sh NAME
+.Nm ncsel
+.Nd ncurses-based terminal selector
+.Sh SYNOPSIS
+.Nm
+.Op Fl bhmsn
+.Op Fl f Ar file
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+is an ncurses-based pager and selector. It reads input from standard
+input or from a file and displays the content in an
+interactive terminal interface. The user can move through the list,
+select entries, and return the selected line(s) or line number(s) to
+the calling script.
+
+The tool is intended for use in POSIX shell scripts where an
+interactive selector is useful. Depending on the options,
+.Nm
+can return selected lines, their line numbers, or both. When
+multiselect mode is enabled, multiple entries may be marked and
+returned.
+
+.Nm
+requires either ncurses or ncursesw.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl b
+Display the selection using reverse video instead of a cursor-style
+highlight.
+.It Fl h
+Show usage information.
+.It Fl m
+Enable multiselect mode. When enabled, entries may be marked or
+unmarked.
+.It Fl n
+Return only the line number of the selected entry.
+.It Fl s
+Return only the selected line itself. By default, both the line number
+and the line content are returned.
+.It Fl f Ar file
+Read input from
+.Ar file .
+Use
+.Sq -
+to read from standard input. 
+.El
+.Sh INTERACTIVE KEYS
+While viewing a list, the following keys are available:
+.Bl -tag -width Ds
+.It f, ^F, SPACE, PageDown
+Move forward one window.
+.It b, ^B, ESC-v, PageUp
+Move backward one window.
+.It j, ^N, Down
+Move down one line.
+.It k, ^P, Up
+Move up one line.
+.It Enter
+Select and exit.
+.It q
+Exit without selection (return value 0).
+.It x
+Exit without selection (return value -1).
+.It m, +
+Toggle mark (multiselect mode only).
+.It !
+Execute a command. The variable %S contains the line
+the cursor is on. Example: printf "%S" | xclip
+.El
+
+Exiting with
+.Sq x
+returns -1 and can be used as a “go back” signal in scripts.
+.Sh EXAMPLES
+Select a file from a directory listing:
+.Bd -literal -offset indent
+ls -a . | ncsel -
+.Ed
+
+Select from a list of strings:
+.Bd -literal -offset indent
+printf "%s\\n%s\\n%s\\n" "One" "Two" "Three" | ncsel -bf -
+.Ed
+.Sh BUGS
+Probably.
+.Sh AUTHOR
+Written by Manfred Güntner
+.Sh REPORTING BUGS
+https://github.com/manfredguentner/ncsel/issues
+.Sh COPYRIGHT
+Copyright © 2026 Manfred Güntner
+This software is distributed under the BSD 2-Clause License; see the
+.Li LICENSE
+file.

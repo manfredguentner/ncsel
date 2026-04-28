@@ -1,0 +1,31 @@
+
+If you look ate the soruce code you will probably recognize
+that its is quite staright forward "oldschool" C code. Should
+compile almost everywhere.
+
+My environment for writing code is NetBSD and compied it
+also on my Raspberry running Debian and on my Notebook
+in a Slackware WSL1 environment. 
+
+It is such a simple project that i didnt do a Makefile.
+
+ncsel requires ncurses. It might be a good idea to use 
+ncursesw. Make sure you have the library and headers
+installed.
+
+Compiling.
+
+NetBSD (and maybe other BSD ?)
+gcc $(pkg-config --cflags --libs ncurses) -o ncsel ncsel.c -s -Os -Wall
+
+Debian and Slackware
+gcc -o ncsel ncsel.c -lncursesw -s -Os -Wall
+or maybe without wide
+gcc -o ncsel ncsel.c -lncurses -s -Os -Wall
+
+tcc and clang should work also.
+
+I guess thats it on most systems. 
+
+Copy the binary somewhere in your $PATH 
+Copy ncsel.1 where man can find them.
