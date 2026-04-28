@@ -1,7 +1,6 @@
 /* ncsel - a selection ncurses pager for terminals */
 /* Copyright (c) 2026, Manfred Güntner             */
 /* SPDX-License-Identifier: BSD-2-Clause           */
-/* todo: maxmark testen */
 
 #include <ctype.h>
 #include <stdio.h>
@@ -14,6 +13,7 @@
 #include <ncurses.h>
 #include <locale.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 /*  And so it begins... */
 
@@ -160,7 +160,31 @@ int main (int argc, char **argv) {
 
 	setlocale(LC_ALL, "");
 	/* setlocale(LC_CTYPE, "C.UTF-8"); */
-	initscr();
+
+	/* we want to use /dev/tty for curses         */
+	/* Otherwise var=$(ls . | ncsel - ) wont work */
+	int ttyfd = open("/dev/tty", O_RDWR);
+	FILE *ttyfp = NULL;
+	SCREEN *scr = NULL;
+
+	if (ttyfd >= 0) {
+		ttyfp = fdopen(ttyfd, "r+");
+		if (!ttyfp) { close(ttyfd); ttyfd = -1; }
+	}
+
+	if (ttyfp) {
+		scr = newterm(NULL, ttyfp, ttyfp);
+		if (!scr) {
+			fprintf(stderr, "newterm failed\n");
+			fclose(ttyfp);
+			return 1;
+		}
+		set_term(scr);
+	}  else {
+		/* fallback */
+		initscr();
+	}
+
 	noecho();
 	keypad(stdscr, TRUE);
 	if (bflag == 1) {
@@ -410,6 +434,8 @@ int main (int argc, char **argv) {
 	fclose(tmp);
 	curs_set(1);
   endwin();
+	delscreen(scr);
+	fclose(ttyfp);
 
 	/* any markings ? */
 	int marked = 0;
