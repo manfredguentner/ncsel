@@ -203,7 +203,6 @@ int main (int argc, char **argv) {
 	};
 	int markcount = 0;	
 	int maxmark = linecount;
-	//struct Selections mark[maxmark];
 	struct Selections *mark = malloc(maxmark * sizeof(*mark));
 	if (!mark) {
 		perror("malloc");
@@ -229,16 +228,19 @@ int main (int argc, char **argv) {
 		if (paged == 0) {
 			arraylines = readlines(tmp, pagearray, rstart, rend);
 			paged = 1;
+			clear();
 		}
 
 		i = 0;
-		clear();
+
 		do {
 			if (i == cpos) {
+				clrtoeol();
 				attron(attr);		
 				mvprintw(i,0,"%s%s%s",mark[linesdone+i].mark,pagearray[i]," ");
 				attroff(attr);
 			} else {
+				clrtoeol();
 				mvprintw(i,0,"%s%s",mark[linesdone+i].mark,pagearray[i]);
 			}
 			i++;
@@ -253,7 +255,7 @@ int main (int argc, char **argv) {
 		}
 		move(cpos,0);
 		attroff(A_DIM);
-		refresh();
+		/* refresh(); I leave it here, but it seems its not needed with no windows */
 
 		gch	= getch();
 
@@ -336,7 +338,7 @@ int main (int argc, char **argv) {
 			mvprintw(11,1,"%s","        %c = line under the cursor");
 			mvprintw(12,1,"%s","  ");
 			mvprintw(13,1,"%s","Press any key to exit");
-			refresh();
+			/* refresh(); I leave it here, but... */
 			getch();
 			paged = 0;		
 		}
