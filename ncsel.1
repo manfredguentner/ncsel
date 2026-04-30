@@ -86,6 +86,11 @@ Select from a list of strings:
 .Bd -literal -offset indent
 printf "%s\\n%s\\n%s\\n" "One" "Two" "Three" | ncsel -bf -
 .Ed
+
+Possible usage in a sh script:
+.Bd -literal -offset indent
+key=$(printf "${radiostations}" | ncsel -b -)
+.Ed
 .Sh BUGS
 Probably.
 .Sh AUTHOR

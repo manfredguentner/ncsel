@@ -208,7 +208,7 @@ int main (int argc, char **argv) {
 		perror("malloc");
 		return 1;
 	}
-	for (int i = 0; i < maxmark; ++i) {
+	for (i = 0; i < maxmark; ++i) {
 		mark[i].lnum = 0;
 		mark[i].mark[0] = ' ';
 		mark[i].mark[1] = '\0';
@@ -282,10 +282,10 @@ int main (int argc, char **argv) {
 
 			char cmd[512];
 			int idx = 0;
-
-			for (int i = 0; input[i] != '\0' && idx < sizeof(cmd) - 1; i++) {
+			int j;
+			for (i = 0; input[i] != '\0' && idx < sizeof(cmd) - 1; i++) {
     		if (input[i] == '%' && input[i+1] == 'S') {
-        	for (int j = 0; pagearray[cpos][j] != '\0' && idx < sizeof(cmd) - 1; j++) {
+        	for (j = 0; pagearray[cpos][j] != '\0' && idx < sizeof(cmd) - 1; j++) {
             cmd[idx++] = pagearray[cpos][j];
         	}
         	i++; 
@@ -335,7 +335,7 @@ int main (int argc, char **argv) {
 			mvprintw(8,1,"%s", "x     = exit without selection (-1)");
 			mvprintw(9,1,"%s", "m  +  = toggles marker if multiselect is on");
 			mvprintw(10,1,"%s","!     = execute shell comand");
-			mvprintw(11,1,"%s","        %c = line under the cursor");
+			mvprintw(11,1,"%s","        %S = line under the cursor");
 			mvprintw(12,1,"%s","  ");
 			mvprintw(13,1,"%s","Press any key to exit");
 			/* refresh(); I leave it here, but... */
