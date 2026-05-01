@@ -42,6 +42,8 @@ Return only the line number of the selected entry.
 .It Fl s
 Return only the selected line itself. By default, both the line number
 and the line content are returned.
+.It Fl v
+Leaving with x or q also returns the string the cursor was on
 .It Fl f Ar file
 Read input from
 .Ar file .
@@ -66,7 +68,7 @@ Select and exit.
 Exit without selection (return value 0).
 .It x
 Exit without selection (return value -1).
-.It m, +
+.It m, s, +
 Toggle mark (multiselect mode only).
 .It !
 Execute a command. The variable %S contains the line

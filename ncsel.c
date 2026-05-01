@@ -9,7 +9,6 @@
 #include <getopt.h>
 #include <string.h>
 #include <fcntl.h>
-#include <poll.h>
 #include <ncurses.h>
 #include <locale.h>
 #include <sys/wait.h>
@@ -18,7 +17,7 @@
 /*  And so it begins... */
 
 void usage(void) {
-	printf("%s\n","usage: [-bhns][-f file] [file...]");
+	printf("%s\n","usage: [-bhnsv][-f file] [file...]");
 }
 
 int readlines(FILE *tmp, char pagearray[][1024], int startline, int endline) {
@@ -48,6 +47,7 @@ int main (int argc, char **argv) {
   int nflag = 0;
 	int sflag = 0;
 	int mflag = 0;
+	int vflag = 0;
 	int result = 0;
 	chtype attr = A_BOLD;
 	
@@ -55,7 +55,7 @@ int main (int argc, char **argv) {
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "bhmnsf:")) != -1)
+  while ((c = getopt (argc, argv, "bhmnsvf:")) != -1)
     switch (c)
       {
       case 'b':
@@ -73,6 +73,9 @@ int main (int argc, char **argv) {
         break;
 			case 's':
 				sflag = 1;
+				break;
+			case 'v':
+				vflag = 1;
 				break;
       case 'f':
        	filename = optarg;
@@ -96,7 +99,7 @@ int main (int argc, char **argv) {
 	}
 	if (filename == NULL) {
 		usage();
-		return 0;
+		return 1;
 	}
 
 	/* tempfile, no array */
@@ -111,19 +114,10 @@ int main (int argc, char **argv) {
 
 	if (strcmp(filename, "-") == 0) {
 		/* read from stdin */
-		/* poll to prevent stdin from blocking */
-		struct pollfd fd;
-		fd.fd = STDIN_FILENO;
-		fd.events = POLLIN;
-		if (poll(&fd, 1, 800) > 0) {
-  		while (fgets(line, sizeof(line), stdin) != NULL ) {
-   			fprintf(tmp, "%s",line);
-				linecount++;
-  		}
-		} else {
-			usage();
-			return 0;
-		}
+  	while (fgets(line, sizeof(line), stdin) != NULL ) {
+   		fprintf(tmp, "%s",line);
+			linecount++;
+  	}
 	}  else {
 		/* read from file */
 		FILE * fp = fopen(filename, "r");
@@ -315,12 +309,14 @@ int main (int argc, char **argv) {
 			result = 0;
 			sflag = 0;
 			nflag = 2;
+			arraylines = cpos;
 			break;
 		}
 		if (gch == 'x') {
 			result = -1;
 			sflag = 0;
 			nflag = 2;
+			arraylines = cpos;
 			break;
 		}
 		if (gch == 'h') {
@@ -333,7 +329,7 @@ int main (int argc, char **argv) {
 			mvprintw(6,1,"%s", "Enter = select and exit");
 			mvprintw(7,1,"%s", "q     = exit without selection (0)");
 			mvprintw(8,1,"%s", "x     = exit without selection (-1)");
-			mvprintw(9,1,"%s", "m  +  = toggles marker if multiselect is on");
+			mvprintw(9,1,"%s", "m s + = toggles marker if multiselect is on");
 			mvprintw(10,1,"%s","!     = execute shell comand");
 			mvprintw(11,1,"%s","        %S = line under the cursor");
 			mvprintw(12,1,"%s","  ");
@@ -342,7 +338,7 @@ int main (int argc, char **argv) {
 			getch();
 			paged = 0;		
 		}
-		if (gch == 'm' || gch == '+') {
+		if (gch == 'm' || gch == '+' || gch == 's') {
 			if (mflag == 1 ) {
 				if (mark[linesdone+cpos].mark[0] == ' ') {
 					mark[linesdone+cpos].mark[0] = '+';
@@ -452,7 +448,6 @@ int main (int argc, char **argv) {
 
 	/* markmode on but no selections */
 	if (marked == 0 && mflag == 1) {
-		result = 0;
 		sflag = 0;
 		nflag = 2;
 	}
@@ -500,7 +495,11 @@ int main (int argc, char **argv) {
 			}
 		}
 	} else if (nflag == 2 && sflag == 0) {
-		printf("%d\n", result);
+		if (vflag == 0) {
+			printf("%d\n", result);
+		} else {
+			printf("%d %s\n", result, pagearray[arraylines]);
+		}
 	}
 
 	/* done */
